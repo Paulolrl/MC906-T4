@@ -1,7 +1,6 @@
 import sys
-sys.path.insert(0, 'envs')
-from snake_env import SnakeEnv
 import gym
+import gym_snake
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Flatten
