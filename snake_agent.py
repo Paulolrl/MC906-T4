@@ -15,7 +15,7 @@ ENV_NAME = 'snake-v0'
 env = gym.make(ENV_NAME)
 np.random.seed(123)
 env.seed(123)
-actions = env.action_space.n
+nb_actions = env.action_space.n
 model = Sequential()
 model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
 model.add(Dense(16))
@@ -35,4 +35,3 @@ dqn.fit(env, nb_steps=5000, visualize=True, verbose=2)
 
 # Test time
 dqn.test(env, nb_episodes=5, visualize=True)
-
