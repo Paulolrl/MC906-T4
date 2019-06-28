@@ -31,7 +31,7 @@ target_model_update=1e-2, policy=policy)
 dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 
 # Training time
-dqn.fit(env, nb_steps=100000, visualize=True, verbose=3)
+dqn.fit(env, nb_steps=200000, visualize=False, verbose=3)
 
 # Test time
-dqn.test(env, nb_episodes=2, visualize=True)
+dqn.test(env, nb_episodes=5, visualize=True)
