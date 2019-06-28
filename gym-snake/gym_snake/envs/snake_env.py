@@ -95,6 +95,7 @@ class SnakeEnv(gym.Env):
         self.moves = 0
         self.action_space = spaces.Discrete(4)
         self.observation_space = spaces.Box(0, 3, [21, 21], dtype=np.uint8)
+        self.display = pygame.display.set_mode((200,200))
 
     def step(self, action):
         """
@@ -189,10 +190,10 @@ class SnakeEnv(gym.Env):
         return ob
 
     def render(self, mode='human'):
-        print(self.get_state())
-        # self.display.fill((200,200,200))
-        # self.display_apple(self.display,self.apple_position,self.apple_image)
-        # self.display_snake(self.display,self.snake_position)
-        # pygame.display.update()
-        # clock.tick(10)
+        # print(self.get_state())
+        self.display.fill((200,200,200))
+        display_apple(self.display,self.apple_position,apple_image)
+        display_snake(self.display,self.snake_position)
+        pygame.display.update()
+        clock.tick(10)
         return
