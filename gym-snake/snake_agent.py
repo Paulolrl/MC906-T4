@@ -35,27 +35,7 @@ target_model_update=1e-2, policy=policy)
 dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 
 # Training time
-dqn.fit(env, nb_steps=20, visualize=False, verbose=3)
+dqn.fit(env, nb_steps=200000, visualize=False, verbose=3)
 
 # Test time
 dqn.test(env, nb_episodes=5, visualize=True)
-
-# for i in range(0, 1000):
-#     env.render()
-
-# pygame.init()
-# display = pygame.display.set_mode((200,200))
-# display.fill(window_color)
-# pygame.display.update()
-# clock.tick(10)
-# # pygame.event.get()
-
-while True:
-    pass
-# while True:
-#     clock.tick(10)
-#     pass
-#
-# for i in range(0, 1000):
-#     env.render()
-# pygame.display.update()

@@ -5,7 +5,7 @@ import random
 import numpy as np
 import pygame
 import math
-window_color = (200,0,0)
+window_color = (200, 200, 200)
 
 green = (0,255,0)
 red = (255,0,0)
@@ -87,7 +87,6 @@ class SnakeEnv(gym.Env):
     counter=1
 
     def __init__(self):
-        print('INITIALIZING')
         self.snake_head = [100,100]
         self.snake_position = [[100,100],[90,100],[80,100]]
         self.apple_position = [random.randrange(1,20)*10,random.randrange(1,20)*10]
@@ -103,6 +102,7 @@ class SnakeEnv(gym.Env):
         self.display = pygame.display.set_mode((200,200))
         self.display.fill(window_color)
         pygame.display.update()
+        pygame.event.get()
 
     def step(self, action):
         """
@@ -200,10 +200,6 @@ class SnakeEnv(gym.Env):
         # print(self.get_state())
         # if self.counter >= 1:
         #     return
-
-        # print('batata')
-        # print(f'snakePos = ${self.snake_position} snakeHead = ${self.snake_head}')
-        self.counter += 1
         self.display.fill(window_color)
         display_apple(self.display,self.apple_position,apple_image)
         display_snake(self.display,self.snake_position)
