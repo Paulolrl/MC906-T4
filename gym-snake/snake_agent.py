@@ -1,6 +1,7 @@
 import sys
 import gym
 import gym_snake
+import pygame
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Flatten
@@ -9,6 +10,9 @@ from keras.optimizers import Adam
 from rl.agents.dqn import DQNAgent
 from rl.policy import EpsGreedyQPolicy
 from rl.memory import SequentialMemory
+
+window_color = (0,200,20)
+clock = pygame.time.Clock()
 
 
 ENV_NAME = 'snake-v0'
