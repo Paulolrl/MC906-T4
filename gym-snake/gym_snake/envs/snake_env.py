@@ -154,10 +154,10 @@ class SnakeEnv(gym.Env):
         self.snake_position, self.apple_position, self.score = generate_snake(self.snake_head, self.snake_position, self.apple_position, self.button_direction, self.score)
         dist_depois = calcula_dist(self.apple_position, self.snake_head)
 
-        # if dist_depois < dist_antes:
-        #     bonus += 0.1
-        # else:
-        #     bonus -= 0.2
+        if dist_depois < dist_antes:
+            bonus += 0.5*dist_depois
+        else:
+            bonus -= 0.2*dist_depois
 
         self.prev_button_direction = self.button_direction
 
