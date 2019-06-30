@@ -174,6 +174,11 @@ class SnakeEnv(gym.Env):
         else:
             ob = np.zeros((3,3), dtype=np.uint8)
 
+        if not episode_over:
+            ob = self.get_state()
+        else:
+            ob = np.zeros((3,3), dtype=np.uint8)
+
         # ob = self.get_state()
 
         self.moves += 1
