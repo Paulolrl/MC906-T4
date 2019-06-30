@@ -41,11 +41,11 @@ def is_direction_blocked(snake_position, current_direction_vector):
 
 def generate_snake(snake_head, snake_position, apple_position, button_direction, score):
 
-    if button_direction == 1:
+    if button_direction == 0:
         snake_head[0] += 10
-    elif button_direction == 0:
-        snake_head[0] -= 10
     elif button_direction == 2:
+        snake_head[0] -= 10
+    elif button_direction == 1:
         snake_head[1] += 10
     elif button_direction == 3:
         snake_head[1] -= 10
@@ -91,13 +91,13 @@ class SnakeEnv(gym.Env):
         self.snake_position = [[100,100],[90,100],[80,100]]
         self.apple_position = [random.randrange(1,20)*10,random.randrange(1,20)*10]
         self.score = 0
-        self.button_direction = 1
-        self.prev_button_direction = 1
+        self.button_direction = 0
+        self.prev_button_direction = 0
         self.current_direction_vector = np.array(self.snake_position[0])-np.array(self.snake_position[1])
         self.moves = 0
         self.action_space = spaces.Discrete(4)
-        self.observation_space = spaces.Box(0, 3, [21, 21], dtype=np.uint8)
-
+        # self.observation_space = spaces.Box(0, 1, [1, 11], dtype=np.uint8)
+        self.observation_space = spaces.Box(0, 4, [3, 3], dtype=np.uint8)
         pygame.init()
         self.display = pygame.display.set_mode((200,200))
         self.display.fill(window_color)
@@ -138,16 +138,16 @@ class SnakeEnv(gym.Env):
         episode_over = False
 
         key = action
-        if key == 2 and self.prev_button_direction != 1:
-            self.button_direction = 0
-        elif key == 0 and self.prev_button_direction != 0:
-            self.button_direction = 1
-        elif key == 1 and self.prev_button_direction != 2:
-            self.button_direction = 3
-        elif key == 3 and self.prev_button_direction != 3:
+        if key == 2 and self.prev_button_direction != 0:
             self.button_direction = 2
+        elif key == 0 and self.prev_button_direction != 2:
+            self.button_direction = 0
+        elif key == 1 and self.prev_button_direction != 3:
+            self.button_direction = 1
+        elif key == 3 and self.prev_button_direction != 1:
+            self.button_direction = 3
         else:
-            self.button_direction = self.button_direction
+            self.button_direction = self.prev_button_direction
 
 
         dist_antes = calcula_dist(self.apple_position, self.snake_head)
@@ -165,18 +165,21 @@ class SnakeEnv(gym.Env):
         reward = bonus + (self.score - score_antes)*10
 
         if is_direction_blocked(self.snake_position, self.current_direction_vector) == 1:
+            reward = -1
             episode_over = True
             # reward -= 5
 
-        ob = self.get_state()
+        if not episode_over:
+            ob = self.get_state()
+        else:
+            ob = np.zeros((3,3), dtype=np.uint8)
+
+        # ob = self.get_state()
 
         self.moves += 1
 
-        if self.moves >= 1000:
-            episode_over = True
-            reward = -10
 
-        return ob, reward, episode_over, {'score': self.score}
+        return ob, reward*10, episode_over, {'score': self.score}
 
     def reset(self):
         print('Score:', self.score)
@@ -184,19 +187,121 @@ class SnakeEnv(gym.Env):
         self.snake_position = [[100,100],[90,100],[80,100]]
         self.apple_position = [random.randrange(1,20)*10,random.randrange(1,20)*10]
         self.score = 0
-        self.button_direction = 1
-        self.prev_button_direction = 1
+        self.button_direction = 0
+        self.prev_button_direction = 0
         self.current_direction_vector = np.array(self.snake_position[0])-np.array(self.snake_position[1])
         self.moves = 0
         return self.get_state()
 
     def get_state(self):
-        ob = np.zeros((21,21), dtype=np.uint8)
+        ob = np.zeros((22,22), dtype=np.uint8)
+        # count = 0
         for x, y in self.snake_position:
-            ob[int(x/10), int(y/10)] = 1
-        ob[int(self.snake_head[0]/10), int(self.snake_head[1]/10)] = 2
-        ob[int(self.apple_position[0]/10), int(self.apple_position[1]/10)] = 3
-        return ob
+            ob[int(x/10)+1, int(y/10)+1] = 1
+            # if count == 1:
+            #     ob[int(x/10)+1, int(y/10)+1] = 1
+            # else:
+            #     ob[int(x/10)+1, int(y/10)+1] = 4
+            # count += 1
+        for i in range(22):
+            for j in range(22):
+                if i == 0 or j == 0 or j == 21 or i == 21:
+                    ob[i,j]=4
+
+        ob[int(self.apple_position[0]/10)+1, int(self.apple_position[1]/10)+1] = 3
+        ob[int(self.snake_head[0]/10)+1, int(self.snake_head[1]/10)+1] = 2
+        newob = ob[int(self.snake_head[0]/10):int(self.snake_head[0]/10)+3, int(self.snake_head[1]/10):int(self.snake_head[1]/10)+3]
+        # newerob = np.zeros((1,11), dtype=np.uint8)
+        #
+        # prev_dir = self.prev_button_direction
+
+        # if newob[1][0] == 1:
+        #     prev_dir = 0
+        # if newob[2][1] == 1:
+        #     prev_dir = 1
+        # if newob[1][2] == 1:
+        #     prev_dir = 2
+        # if newob[0][1] == 1:
+        #     prev_dir = 3
+
+        # newerob[0][prev_dir] = 1
+        #
+        # if prev_dir == 0:
+        #     if newob[0][2] == 3 or newob[1][2] == 3 or newob[2][2] == 3:
+        #         newerob[0][4] = 1
+        #     if newob[0][0] == 3 or newob[0][1] == 3 or newob[0][2] == 3:
+        #         newerob[0][5] = 1
+        #     if newob[2][0] == 3 or newob[2][1] == 3 or newob[2][2] == 3:
+        #         newerob[0][6] = 1
+        #     if newob[0][0] == 3 or newob[0][0] == 3 or newob[0][2] == 3:
+        #         newerob[0][7] = 1
+        #
+        # if prev_dir == 1:
+        #     if newob[0][0] == 3 or newob[0][1] == 3 or newob[0][2] == 3:
+        #         newerob[0][4] = 1
+        #     if newob[2][0] == 3 or newob[2][1] == 3 or newob[2][2] == 3:
+        #         newerob[0][5] = 1
+        #     if newob[0][2] == 3 or newob[1][2] == 3 or newob[2][2] == 3:
+        #         newerob[0][6] = 1
+        #     if newob[0][0] == 3 or newob[1][0] == 3 or newob[2][0] == 3:
+        #         newerob[0][7] = 1
+        #
+        # if prev_dir == 2:
+        #     if newob[0][0] == 3 or newob[1][0] == 3 or newob[1][2] == 3:
+        #         newerob[0][4] = 1
+        #     if newob[0][2] == 3 or newob[1][2] == 3 or newob[2][2] == 3:
+        #         newerob[0][5] = 1
+        #     if newob[0][0] == 3 or newob[0][1] == 3 or newob[0][2] == 3:
+        #         newerob[0][6] = 1
+        #     if newob[2][0] == 3 or newob[2][1] == 3 or newob[2][2] == 3:
+        #         newerob[0][7] = 1
+        #
+        # if prev_dir == 3:
+        #     if newob[2][0] == 3 or newob[2][1] == 3 or newob[2][2] == 3:
+        #         newerob[0][4] = 1
+        #     if newob[0][0] == 3 or newob[0][1] == 3 or newob[2][2] == 3:
+        #         newerob[0][5] = 1
+        #     if newob[0][0] == 3 or newob[1][0] == 3 or newob[2][0] == 3:
+        #         newerob[0][6] = 1
+        #     if newob[0][2] == 3 or newob[1][2] == 3 or newob[2][2] == 3:
+        #         newerob[0][7] = 1
+        #
+        # if prev_dir == 0:
+        #     if newob[1][2] == 4:
+        #         newerob[0][8] = 1
+        #     if newob[0][1] == 4:
+        #         newerob[0][9] = 1
+        #     if newob[2][1] == 4:
+        #         newerob[0][10] = 1
+        #
+        # if prev_dir == 1:
+        #     if newob[0][1] == 4:
+        #         newerob[0][8] = 1
+        #     if newob[1][0] == 4:
+        #         newerob[0][9] = 1
+        #     if newob[1][2] == 4:
+        #         newerob[0][10] = 1
+        #
+        # if prev_dir == 2:
+        #     if newob[1][0] == 4:
+        #         newerob[0][8] = 1
+        #     if newob[2][1] == 4:
+        #         newerob[0][9] = 1
+        #     if newob[0][1] == 4:
+        #         newerob[0][10] = 1
+        #
+        # if prev_dir == 3:
+        #     if newob[2][1] == 4:
+        #         newerob[0][8] = 1
+        #     if newob[1][2] == 4:
+        #         newerob[0][9] = 1
+        #     if newob[1][0] == 4:
+        #         newerob[0][10] = 1
+
+        # print(prev_dir)
+        # print(newob)
+        # print(newerob)
+        return newob
 
     def render(self, mode='human'):
         # print(self.get_state())
