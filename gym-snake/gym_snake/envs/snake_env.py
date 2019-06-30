@@ -154,24 +154,19 @@ class SnakeEnv(gym.Env):
         self.snake_position, self.apple_position, self.score = generate_snake(self.snake_head, self.snake_position, self.apple_position, self.button_direction, self.score)
         dist_depois = calcula_dist(self.apple_position, self.snake_head)
 
-        if dist_depois < dist_antes:
-            bonus += 0.5
-        else:
-            bonus -= 1
+        # if dist_depois < dist_antes:
+        #     bonus += 0.1
+        # else:
+        #     bonus -= 0.2
 
         self.prev_button_direction = self.button_direction
 
-        reward = bonus + (self.score - score_antes)*10
+        reward = bonus + (self.score - score_antes)
 
         if is_direction_blocked(self.snake_position, self.current_direction_vector) == 1:
             reward = -2
             episode_over = True
-            # reward -= 5
 
-        if not episode_over:
-            ob = self.get_state()
-        else:
-            ob = np.zeros((3,3), dtype=np.uint8)
 
         if not episode_over:
             ob = self.get_state()
@@ -183,8 +178,7 @@ class SnakeEnv(gym.Env):
 
         self.moves += 1
 
-
-        return ob, reward*100, episode_over, {'score': self.score}
+        return ob, reward*10, episode_over, {'score': self.score}
 
     def reset(self):
         print('Score:', self.score)
