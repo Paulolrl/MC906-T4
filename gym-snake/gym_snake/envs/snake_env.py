@@ -13,9 +13,12 @@ black = (0,0,0)
 clock = pygame.time.Clock()
 apple_image = pygame.image.load('apple.jpg')
 
-def collision_with_apple(apple_position, score):
+def collision_with_apple(apple_position, score, snake_position):
     score += 1
-    apple_position = [random.randrange(1,20)*10,random.randrange(1,20)*10]
+    while True:
+        apple_position = [random.randrange(1,20)*10,random.randrange(1,20)*10]
+        if snake_position.count(apple_position) == 0:
+            break
     return apple_position, score
 
 def collision_with_boundaries(snake_head):
@@ -53,7 +56,7 @@ def generate_snake(snake_head, snake_position, apple_position, button_direction,
         pass
 
     if snake_head == apple_position:
-        apple_position, score = collision_with_apple(apple_position, score)
+        apple_position, score = collision_with_apple(apple_position, score, snake_position)
         snake_position.insert(0,list(snake_head))
 
     else:
@@ -154,17 +157,17 @@ class SnakeEnv(gym.Env):
         self.snake_position, self.apple_position, self.score = generate_snake(self.snake_head, self.snake_position, self.apple_position, self.button_direction, self.score)
         dist_depois = calcula_dist(self.apple_position, self.snake_head)
 
-        if dist_depois < dist_antes:
-            bonus += 0.5*dist_depois
-        else:
-            bonus -= 0.2*dist_depois
+        if dist_depois < dist_antes and self.score == score_antes:
+            bonus += 0.1
+        elif self.score == score_antes:
+            bonus -= 0.2
 
         self.prev_button_direction = self.button_direction
 
         reward = bonus + (self.score - score_antes)
 
         if is_direction_blocked(self.snake_position, self.current_direction_vector) == 1:
-            reward = -2
+            reward = -15
             episode_over = True
 
 
@@ -194,20 +197,20 @@ class SnakeEnv(gym.Env):
 
     def get_state(self):
         ob = np.zeros((22,22), dtype=np.uint8)
-        count = 0
+        # count = 0
+        ob[int(self.apple_position[0]/10)+1, int(self.apple_position[1]/10)+1] = 3
         for x, y in self.snake_position:
-            # ob[int(x/10)+1, int(y/10)+1] = 1
-            if count == 1:
-                ob[int(x/10)+1, int(y/10)+1] = 1
-            else:
-                ob[int(x/10)+1, int(y/10)+1] = 4
-            count += 1
+            ob[int(x/10)+1, int(y/10)+1] = 4
+            # if count == 1:
+            #     ob[int(x/10)+1, int(y/10)+1] = 1
+            # else:
+            #     ob[int(x/10)+1, int(y/10)+1] = 4
+            # count += 1
         for i in range(22):
             for j in range(22):
                 if i == 0 or j == 0 or j == 21 or i == 21:
                     ob[i,j]=4
 
-        ob[int(self.apple_position[0]/10)+1, int(self.apple_position[1]/10)+1] = 3
         ob[int(self.snake_head[0]/10)+1, int(self.snake_head[1]/10)+1] = 2
         newob = ob[int(self.snake_head[0]/10):int(self.snake_head[0]/10)+3, int(self.snake_head[1]/10):int(self.snake_head[1]/10)+3]
         newerob = np.zeros((1,11), dtype=np.uint8)
@@ -218,6 +221,7 @@ class SnakeEnv(gym.Env):
         apple_y = int(self.apple_position[1]/10)+1
         head_x = int(self.snake_head[0]/10)+1
         head_y = int(self.snake_head[1]/10)+1
+
         newerob[0][prev_dir] = 1
 
         if apple_x > head_x:
