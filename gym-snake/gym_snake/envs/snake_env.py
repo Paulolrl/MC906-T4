@@ -183,6 +183,9 @@ class SnakeEnv(gym.Env):
 
         self.moves += 1
 
+        if self.moves >= 1000:
+            episode_over = True
+
         return ob, reward*10, episode_over, {'score': self.score}
 
     def reset(self):
