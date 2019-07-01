@@ -23,9 +23,9 @@ nb_actions = env.action_space.n
 model = Sequential()
 model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
 model.add(Dense(120, activation='relu'))
-# model.add(Dropout(0.3))
-# model.add(Dense(120, activation='relu'))
-# model.add(Dropout(0.3))
+model.add(Dropout(0.3))
+model.add(Dense(120, activation='relu'))
+model.add(Dropout(0.3))
 # model.add(Dense(120, activation='relu'))
 # model.add(Dropout(0.3))
 # model.add(Dense(256, activation='relu'))
@@ -41,7 +41,7 @@ target_model_update=1e-2, policy=policy)
 dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 
 # Training time
-dqn.fit(env, nb_steps=100000, visualize=False, verbose=3)
+dqn.fit(env, nb_steps=70000, visualize=False, verbose=3)
 
 # Test time
 dqn.test(env, nb_episodes=10, visualize=True)
