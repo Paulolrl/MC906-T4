@@ -17,8 +17,10 @@ def collision_with_apple(apple_position, score, snake_position):
     score += 1
     while True:
         apple_position = [random.randrange(1,20)*10,random.randrange(1,20)*10]
-        if snake_position.count(apple_position) == 0:
-            break
+        for x, y in snake_position:
+            if x == apple_position[0] and y == apple_position[1]:
+                continue
+        break
     return apple_position, score
 
 def collision_with_boundaries(snake_head):
@@ -157,17 +159,17 @@ class SnakeEnv(gym.Env):
         self.snake_position, self.apple_position, self.score = generate_snake(self.snake_head, self.snake_position, self.apple_position, self.button_direction, self.score)
         dist_depois = calcula_dist(self.apple_position, self.snake_head)
 
-        if dist_depois < dist_antes and self.score == score_antes:
-            bonus += 0.1
-        elif self.score == score_antes:
-            bonus -= 0.2
+        if dist_depois > dist_antes and self.score == score_antes:
+            bonus -= 0.1
+        # if self.score == score_antes:
+        #     bonus -= 0.2
 
         self.prev_button_direction = self.button_direction
 
         reward = bonus + (self.score - score_antes)
 
         if is_direction_blocked(self.snake_position, self.current_direction_vector) == 1:
-            reward = -15
+            reward = -3
             episode_over = True
 
 
@@ -180,6 +182,9 @@ class SnakeEnv(gym.Env):
         # print(ob)
 
         self.moves += 1
+
+        if self.moves >= 1000:
+            episode_over = True
 
         return ob, reward*10, episode_over, {'score': self.score}
 
@@ -280,5 +285,5 @@ class SnakeEnv(gym.Env):
         display_snake(self.display,self.snake_position)
         pygame.display.update()
         pygame.event.get()
-        clock.tick(10)
+        clock.tick(20)
         return

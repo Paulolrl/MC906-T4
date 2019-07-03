@@ -22,43 +22,30 @@ env.seed(123)
 nb_actions = env.action_space.n
 model = Sequential()
 model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
-<<<<<<< HEAD
-model.add(Dense(200))
-model.add(Activation('relu'))
-model.add(Dropout(0.5))
-model.add(Dense(200))
-model.add(Dropout(0.5))
-model.add(Activation('relu'))
-model.add(Dense(200))
-model.add(Dropout(0.5))
-model.add(Activation('relu'))
-=======
 model.add(Dense(120, activation='relu'))
 model.add(Dropout(0.3))
 model.add(Dense(120, activation='relu'))
 model.add(Dropout(0.3))
-model.add(Dense(120, activation='relu'))
-model.add(Dropout(0.3))
+# model.add(Dense(120, activation='relu'))
+# model.add(Dropout(0.3))
 # model.add(Dense(256, activation='relu'))
 # model.add(Dropout(0.1))
->>>>>>> d56270362a6e54673ead8778dde617e610d743b9
 model.add(Dense(nb_actions))
 model.add(Activation('softmax'))
 
 print(model.summary())
 
 policy = MaxBoltzmannQPolicy()
-memory = SequentialMemory(limit=50000, window_length=1)
+memory = SequentialMemory(limit=100000, window_length=1)
 dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=10,
 target_model_update=1e-2, policy=policy)
 dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 
 # Training time
-<<<<<<< HEAD
-dqn.fit(env, nb_steps=600000, visualize=False, verbose=3)
-=======
 dqn.fit(env, nb_steps=50000, visualize=False, verbose=3)
->>>>>>> d56270362a6e54673ead8778dde617e610d743b9
+=======
+dqn.fit(env, nb_steps=70000, visualize=False, verbose=3)
+>>>>>>> b35c02923a5c13b4fc35fcab227f16b014311edd
 
 # Test time
 dqn.test(env, nb_episodes=5, visualize=True)
